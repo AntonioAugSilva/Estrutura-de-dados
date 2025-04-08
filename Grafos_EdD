@@ -1,0 +1,90 @@
+from collections import deque
+
+class Grafo:
+    def __init__(self, n):
+        self.n = n
+        self.matriz_adj = [[0] * n for _ in range(n)]
+        self.lista_adj = [[] for _ in range(n)]
+
+    def adicionar_aresta(self, u, v):
+        self.matriz_adj[u][v] = 1
+        self.matriz_adj[v][u] = 1
+        self.lista_adj[u].append(v)
+        self.lista_adj[v].append(u)
+
+    def bfs(self, s, t):
+        visitado = [False] * self.n
+        predecessores = [-1] * self.n
+        fila = deque([s])
+        visitado[s] = True
+
+        while fila:
+            u = fila.popleft()
+            for v in self.lista_adj[u]:
+                if not visitado[v]:
+                    visitado[v] = True
+                    predecessores[v] = u
+                    fila.append(v)
+
+                    if v == t:
+                        caminho = []
+                        while v != -1:
+                            caminho.append(v)
+                            v = predecessores[v]
+                        return caminho[::-1]
+
+        return None
+
+    def dfs_iterativo(self, s, t):
+        visitado = [False] * self.n
+        pilha = [s]
+        predecessores = [-1] * self.n
+        visitado[s] = True
+
+        while pilha:
+            u = pilha.pop()
+            for v in self.lista_adj[u]:
+                if not visitado[v]:
+                    visitado[v] = True
+                    predecessores[v] = u
+                    pilha.append(v)
+
+                    if v == t:
+                        caminho = []
+                        while v != -1:
+                            caminho.append(v)
+                            v = predecessores[v]
+                        return caminho[::-1]
+
+        return None
+
+def carregar_grafo(nome_arquivo):
+    with open(nome_arquivo, "r") as f:
+        linhas = f.readlines()
+
+    n = int(linhas[0].strip())
+    grafo = Grafo(n)
+
+    for linha in linhas[1:]:
+        u, v = map(int, linha.strip().split())
+        grafo.adicionar_aresta(u, v)
+
+    return grafo
+
+grafo = Grafo(5)
+grafo.adicionar_aresta(0, 1)
+grafo.adicionar_aresta(1, 2)
+grafo.adicionar_aresta(2, 3)
+grafo.adicionar_aresta(3, 4)
+
+caminho = grafo.bfs(0, 4)
+if caminho:
+    print("Caminho encontrado pela BFS:", caminho)
+else:
+    print("Não há caminho entre os vértices.")
+
+caminho = grafo.dfs_iterativo(0, 4)
+if caminho:
+    print("Caminho encontrado pela DFS:", caminho)
+else:
+    print("Não há caminho entre os vértices.")
